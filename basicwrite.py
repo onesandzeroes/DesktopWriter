@@ -14,11 +14,16 @@ class DesktopFile:
                   'Comment', 'Icon', 'Hidden', 'OnlyShowIn', 'TryExec',
                   'Exec', 'Path', 'Terminal', 'Actions', 'MimeType',
                   'Categories', 'Keywords', 'StartupNotify' 'StartupNotify',
-                  'StartupWMClass', 'URL']
-    def __init__(self, filename):
-        self.old = open(filename, 'r')
+                  'StartupWMClass', 'URL'
+                  ]
+    # Set the output directory to ./Output/ for now, change it to .local/share
+    # /applications later
+    output_dir = 'Output/'
+    def __init__(self, filename, from_old=False):
         self.entry_dict = {}
-        self.populate_keys()
+        if from_old:
+            self.old = open(filename, 'r')
+            self.populate_keys()
     def edit_key(self, key, value):
         if not key in self.valid_keys:
             print('Not a valid key type!')
@@ -26,6 +31,9 @@ class DesktopFile:
     def find_current_key(self, key):
         pass
     def populate_keys(self):
+        """
+        Add all the existing key/value pairs to the entry_dict
+        """
         # List comprehension to find all lines containing a key=value pair
         key_lines = [line for line in self.old if self.key_line.match(line)]
         for line in key_lines:
@@ -33,7 +41,22 @@ class DesktopFile:
             current_key = split_line[0]
             current_val = split_line[1].rstrip()
             self.entry_dict[current_key] = current_val
+    def write_desk_file(self, out_filename):
+        # This is the order of keys on the freedesktop.org example, seems like
+        # a good standard to stick to for now
+        order = ['Version', 'Type', 'Name', 'Comment', 'TryExec', 'Exec', 'Icon',
+                 'MimeType', 'Actions'
+                 ]
+        out_filename = self.output_dir + out_filename
+        out_file = open(out_filename, 'w')
+        out_file.write('[Desktop Entry]' + '\n')
+        for key in order:
+            if self.entry_dict.get(key):
+                out_file.write(key + '=' + self.entry_dict[key] + '\n')
+            else:
+                # Check for the most essential keys here, e.g. Name, Exec
+                pass
 
 if __name__ == '__main__':
-    des = DesktopFile('desuratest.desktop')
+    des = DesktopFile('desuratest.desktop', from_old=True)
     print(des.entry_dict)
