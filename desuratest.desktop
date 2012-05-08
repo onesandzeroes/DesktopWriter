@@ -1,0 +1,15 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Desura
+GenericName=Game Manager
+Comment=Download and play the best games
+Exec=/home/marius/.Games/desura/desura %U
+TryExec=/home/marius/.Games/desura/bin/desura
+Path=/home/marius/.Games/desura
+MimeType=x-scheme-handler/desura;
+Icon=/home/marius/.Games/desura/data/desura.png
+Terminal=false
+Categories=Game;
+StartupNotify=false
