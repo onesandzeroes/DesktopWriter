@@ -24,12 +24,12 @@ class DesktopFile:
     output_dir = 'Output/'
     def __init__(self):
         self.entry_dict = {}
-    def edit_key(self, key, value):
-        if not key in self.valid_keys:
-            print('Not a valid key type!')
-        self.entry_dict[key] = value
-    def find_current_key(self, key):
-        pass
+        self.quicklist = {}
+        self.has_quicklist = False
+    def check_keys(self):
+        for key in self.entry_dict:
+            if not key in self.valid_keys:
+                print(key + ' is not a valid key type!')
     def write_desk_file(self, out_filename):
         """ 
         Takes the key/value pairs in entry_dict and writes a new desktop file
@@ -37,18 +37,39 @@ class DesktopFile:
         """
         # This is the order of keys on the freedesktop.org example, seems like
         # a good standard to stick to for now
-        order = ['Version', 'Type', 'Name', 'Comment', 'TryExec', 'Exec', 'Icon',
-                 'MimeType', 'Actions'
+        order = ['Version', 'Type', 'Name', 'Comment', 
+                'TryExec', 'Exec', 'Icon', 'MimeType'
                  ]
         out_filename = self.output_dir + out_filename
-        out_file = open(out_filename, 'w')
-        out_file.write('[Desktop Entry]' + '\n')
+        self.out_file = open(out_filename, 'w')
+        self.out_file.write('[Desktop Entry]' + '\n')
         for key in order:
             if self.entry_dict.get(key):
-                out_file.write(key + '=' + self.entry_dict[key] + '\n')
+                self.out_file.write(key + '=' + self.entry_dict[key] + '\n')
             else:
                 # Check for the most essential keys here, e.g. Name, Exec
                 pass
+        if self.has_quicklist:
+            self.write_quicklist()
+    def add_quicklist_action(self, action, name, command):
+        if not self.has_quicklist:
+            self.has_quicklist = True
+        self.quicklist[action] = {'Name': name, 'Exec': command}
+    def write_quicklist(self):
+        self.out_file.write('Actions=')
+        for action in self.quicklist:
+            self.out_file.write(action + ';')
+        self.out_file.write('\n\n')
+        for action in self.quicklist:
+            self.out_file.write('[Desktop Action ' + action + ']\n')
+            self.write_quick_action(self.quicklist[action])
+    def write_quick_action(self, action):
+        for key in action:
+            self.out_file.write(key + '=' + action[key] + '\n')
+        self.out_file.write('OnlyShowIn=Unity;')
+        self.out_file.write('\n')
+
+
 
 class ExistingDesktop(DesktopFile):
     """
@@ -56,7 +77,7 @@ class ExistingDesktop(DesktopFile):
     desktop entry
     """
     def __init__(self, filename):
-        self.entry_dict = {}
+        DesktopFile.__init__(self)
         self.old = open(filename)
         self.populate_keys()
     def populate_keys(self):
@@ -73,4 +94,6 @@ class ExistingDesktop(DesktopFile):
 
 if __name__ == '__main__':
     des = ExistingDesktop('desuratest.desktop')
+    des.add_quicklist_action('Force', 'Force the client to update', 'desura --force')
     print(des.entry_dict)
+    des.write_desk_file('desuranew.desktop')
