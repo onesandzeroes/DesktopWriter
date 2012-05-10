@@ -5,6 +5,9 @@ import re
 import tempfile
 
 class DesktopFile:
+    """
+    Creates and stores the key/value pairs necessary for a desktop entry
+    """
     # Regular expression to find a key line could probably be a lot
     # better, but should work for now.
     key_line = re.compile('\S+=\S+')
@@ -28,6 +31,10 @@ class DesktopFile:
     def find_current_key(self, key):
         pass
     def write_desk_file(self, out_filename):
+        """ 
+        Takes the key/value pairs in entry_dict and writes a new desktop file
+        to out_filename
+        """
         # This is the order of keys on the freedesktop.org example, seems like
         # a good standard to stick to for now
         order = ['Version', 'Type', 'Name', 'Comment', 'TryExec', 'Exec', 'Icon',
@@ -44,6 +51,10 @@ class DesktopFile:
                 pass
 
 class ExistingDesktop(DesktopFile):
+    """
+    Subclass of DesktopFile to be used when you're copying/editing an existing
+    desktop entry
+    """
     def __init__(self, filename):
         self.entry_dict = {}
         self.old = open(filename)
