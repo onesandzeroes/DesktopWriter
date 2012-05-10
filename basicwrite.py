@@ -46,6 +46,7 @@ class DesktopFile:
 class ExistingDesktop(DesktopFile):
     def __init__(self, filename):
         self.entry_dict = {}
+        self.old = open(filename)
         self.populate_keys()
     def populate_keys(self):
         """
@@ -60,5 +61,5 @@ class ExistingDesktop(DesktopFile):
             self.entry_dict[current_key] = current_val
 
 if __name__ == '__main__':
-    des = DesktopFile('desuratest.desktop', from_old=True)
+    des = ExistingDesktop('desuratest.desktop')
     print(des.entry_dict)
